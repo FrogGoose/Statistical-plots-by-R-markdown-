@@ -173,3 +173,156 @@ qplot(x=value,data=XZ1,shape=variable,colour=variable,geom="histogram",bins=100)
 ```
 
 ![](graphs_files/figure-markdown_github/unnamed-chunk-9-1.png)
+
+Demo of Central Limit Theorem
+
+Sample from Uniform Distribution:
+
+``` r
+N<-5000
+n<-c(2,5,10,15,20,30)
+par(mfrow=c(2,3))
+A<-sapply(n,FUN=function(x){
+  lops<-rep(x,N)
+  A<-t(sapply(lops,runif))#sample from uniform
+  hist(rowMeans(A),main=paste("Histogram of n=",x),xlab="x-bar",col="lightgray")
+})  
+```
+
+![](graphs_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+Sample from Poisson with lambda=2 Distribution:
+
+``` r
+N<-5000
+n<-c(2,5,10,15,20,30)
+par(mfrow=c(2,3))
+A<-sapply(n,FUN=function(x){
+  lops<-rep(x,N)
+  A<-t(sapply(lops,rpois,lambda=2))#sample from poisson with lambda=2
+  hist(rowMeans(A),main=paste("Histogram of n=",x),xlab="x-bar",col="lightgray")
+})
+```
+
+![](graphs_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+Sample from poisson with lambda=.2
+
+``` r
+N<-5000
+n<-c(2,10,20,30,50,100)
+par(mfrow=c(2,3))
+A<-sapply(n,FUN=function(x){
+  lops<-rep(x,N)
+  A<-t(sapply(lops,rpois,lambda=.2))#sample from poisson with lambda=.2
+  hist(rowMeans(A),main=paste("Histogram of n=",x),xlab="x-bar",col="lightgray")
+})
+```
+
+![](graphs_files/figure-markdown_github/unnamed-chunk-12-1.png)
+
+Gaussain Process:
+
+``` r
+#gaussian process
+library(MASS)
+library(ggplot2)
+library(reshape2)
+Msigma<-function(x1,x2){# return covariance matrix
+  sigma<-matrix(NA,nc=length(x2),nr=length(x1))
+  for(i in 1:length(x1)){
+    sigma[i,]<-sapply(x2,FUN=function(x) {
+      exp(-0.5*(x-x1[i])^2)
+    }
+    )}
+  return(sigma)
+}
+f <- data.frame(x=c(-4,-3,-1,0,2),
+                y=c(-2,0,1,2,-1))
+x <- f$x
+K.xx<-Msigma(x,x)
+x.star<-seq(-5,5,0.1)#key to perform GP
+K.Star<-Msigma(x,x.star)
+K.SStar<-Msigma(x.star,x.star)
+
+sigma.n<-0#noise-free
+f.mu<-t(K.Star)%*%solve(K.xx+sigma.n^2*diag(1, ncol(K.xx)))%*%f$y #mean
+# L<-chol(K)
+# arf<-solve(t(L))%*%solve(L)%*%f$y
+# f.mu<-t(K.Star)%*%arf
+f.sigma<-K.SStar-t(K.Star)%*%solve(K.xx+sigma.n^2*diag(1, ncol(K.xx)))%*%K.Star#-covariance
+# v<-solve(L)%*%K.Star
+# f.sigma<-K.SStar-t(v)%*%v
+
+n.samples<-25
+values<-matrix(0,nc=n.samples,nr=length(x.star))
+for(i in 1:n.samples){
+  values[,i]<-mvrnorm(1,f.mu,f.sigma)
+}
+values1<-cbind(x=x.star,as.data.frame(values))
+values2<-melt(values1,id="x")
+#########ggplot
+#qplot(x=x,y=value,data=values2,group=variable,geom="line")
+p<-ggplot(values2,mapping=aes(x=x,y=value))
+p+geom_line(aes(group=variable))+
+  #geom_line(data=values2,aes(x=x.star,y=f.mu,group=variable),colour="red", size=1)+
+  geom_point(data=f,aes(x=x,y=y),colour="red",size=7)+
+  geom_errorbar(data=f,aes(x=x,y=NULL,ymin=y-2*sigma.n, ymax=y+2*sigma.n), colour="darkred",width=0.2)+ 
+  theme_bw()+
+  ggtitle("Gaussian Process")+
+  ylab("output, f(x)") +
+  xlab("input, x")
+```
+
+![](graphs_files/figure-markdown_github/unnamed-chunk-13-1.png)
+
+Gaussain Process 2:
+
+``` r
+#training data
+x<-c(-1.5,-1,-0.75,-.4,-.25,0)
+y<-c(-1.6,-1.1,-.3,.3,.6,1)
+values<-data.frame(x,y)
+ 
+###kernel function
+sigma.n<-0.3
+l<-1
+sigma.f<-sqrt(1.61)
+Msigma<-function(x1,x2){# return covariance matrix
+  sigma<-matrix(NA,nc=length(x2),nr=length(x1))
+  for(i in 1:length(x1)){
+    sigma[i,]<-sapply(x2,FUN=function(x) {
+      sigma.f^2*exp(-0.5*(x-x1[i])^2/l^2)
+    }
+    )}
+  diag(sigma)<-diag(sigma)+sigma.n^2
+  return(sigma)
+}
+
+
+########predict for one thousand new point
+x.star<-seq(-1.7,0.3,0.001)
+x.star<-setdiff(x.star,x)#delet x from x.star
+K<-Msigma(x,x) 
+K.star<-Msigma(x.star,x)
+K.stst<-Msigma(x.star,x.star)
+y.star<-K.star%*%solve(K)%*%y
+var.y.star<-diag(K.stst-K.star%*%solve(K)%*%t(K.star))
+
+
+############graph
+library(ggplot2) 
+p<-ggplot(values,mapping=aes(x=x,y=y))
+p+geom_errorbar(data=data.frame(x=x.star,y=y.star),aes(x=x,y=y,ymin=y.star-1.96*sqrt(var.y.star), ymax=y.star+1.96*sqrt(var.y.star)), colour="lightpink",width=.03)+
+  geom_point(colour="black",size=3)+
+  geom_errorbar(data=values,aes(x=x,y=NULL,ymin=y-.3, ymax=y+.3), colour="red",width=.03)+
+  geom_line(data=data.frame(x=x.star,y=y.star),aes(x=x,y=y),colour="red",size=1)+
+  geom_point(data=NULL,aes(x=0.2,y=y.star[1901]),colour="blue",size=3)+###########??????????
+  geom_errorbar(data=NULL,aes(x=.2,y=NULL,ymin=y.star[1901]-.4, ymax=y.star[1901]+.4), colour="green",width=0)+
+  scale_x_continuous(limits=c(-1.6,.3),breaks=seq(-1.6,0.2,.2))+#specify x range
+  scale_y_continuous(limits=c(-2.85,2.5),breaks=seq(-2.5,2.5,.5))+
+  theme_set(theme_bw())+#white background
+  theme(panel.grid.major=element_line(colour=NA))#delete grid
+```
+
+![](graphs_files/figure-markdown_github/unnamed-chunk-14-1.png)
