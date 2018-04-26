@@ -1,15 +1,13 @@
----
-title: "Graphs used in STAT 243"
-author: 'Author: Ma'
-date: "August 8, 2017"
-output: github_document
----
+Graphs used in STAT 243
+================
+Author: Ma
+August 8, 2017
 
 This is to summarize all graphs used in STAT 243 at PSU.
 
 Here is the first figure, which shows us how to plot line and add legends:
 
-```{r, warning=FALSE, message=FALSE}
+``` r
 dose <- c(20, 30, 40, 45, 60)
 drugA <- c(16, 20, 27, 40, 60)
 drugB <- c(15, 18, 25, 31, 40)
@@ -24,9 +22,11 @@ library(Hmisc)
 minor.tick(nx=5, ny=5, tick.ratio=0.5)
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-1-1.png)
+
 The second practice:
 
-```{r, warning=FALSE, message=FALSE}
+``` r
 x<-seq(from=20,to=50,by=0.1)
 f11<-function(z) 108+0.2*z
 f12<-function(z) 132+0.2*z
@@ -47,8 +47,11 @@ text(x=45,y=455,labels="y=119+8.15x",col="green")
 minor.tick(nx=5, ny=5, tick.ratio=0.5)
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-2-1.png)
+
 The third plot:
-```{r, warning=FALSE, message=FALSE}
+
+``` r
 attach(mtcars)
 par(mfrow=c(2,2))
 plot(wt,mpg,main="Scattorplot of wt vs. mpg",col="blue",pch=16,font=2,font.lab=2)
@@ -59,8 +62,11 @@ hist(wt,font=2,font.lab=2,col=12,col.axis=20,fg=19)
 boxplot(wt,main="Boxplot of wt",col=21)
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-3-1.png)
+
 Histogram:
-```{r, message=FALSE, warning=FALSE}
+
+``` r
 A<-matrix(c(29,13,7,7,7,21),nc=2,byrow = T)
 colnames(A)<-c("Placebo","Treated")
 rownames(A)<-c("None","Some","Marked")
@@ -71,8 +77,11 @@ barplot(A,width=0.2,col=c(3,4,5),legend.text = TRUE,space=NULL,
         ylab="frequency",beside=TRUE,main="grouped bar plot")
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-4-1.png)
+
 Pie Charts:
-```{r, message=FALSE, warning=FALSE}
+
+``` r
 mat<-matrix(c(1,1,2,3), nrow=2, ncol=2, byrow = TRUE)# three plots, first plot located in (1,1) and (1,2)
 layout(mat) #rearrange layout. 
 Mi<-rep("Miami",16) 
@@ -91,8 +100,11 @@ pie(counts,lbs2,col=13:15,main="Pie Chart",font.main=2)
 pie3D(counts,labels=lbs2,labelcex=0.8,explode=0.1,main="3D Pie Chart",font.main=2)#explode
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-5-1.png)
+
 A fancy Histogram:
-```{r, warning=FALSE, message=FALSE}
+
+``` r
 attach(mtcars)
 hist(mpg,xlim=c(5,40),probability = TRUE,density=10,col=3,xlab="Miles Per Gallon",
      main="Histogram of Miles Per Gallon")
@@ -107,8 +119,11 @@ for (i in brk) ht = c(ht, d$y[which.min(abs(d$x - i))])
 segments(brk,0,brk,ht,lty=3)
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
 Empirical Rule:
-```{r, warning=FALSE, message=FALSE}
+
+``` r
 x<-seq(-3.3,3.3,0.1)
 plot(x,dnorm(x),lwd=2,type="l",lty=1,ylab="Density",col="blue",ann=FALSE,axes=FALSE)
 i=-3
@@ -127,8 +142,11 @@ axis(side=1,at=seq(-3,3,1),labels=c(expression(mu-paste("3",sigma)),expression(m
 expression(mu-sigma),expression(mu),expression(mu+sigma),expression(mu+paste("2",sigma)),expression(mu+paste("3",sigma))))
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
 BoxPlot:
-```{r, message=FALSE, warning=FALSE}
+
+``` r
 par(mfrow=c(1,2))
 boxplot(mpg ~ cyl, data=mtcars,main="Car Mileage Data",xlab="Number of Cylinders",
         ylab="Miles Per Gallon",col=2:4)
@@ -136,8 +154,11 @@ boxplot(mpg ~ cyl, data=mtcars,main="Car Mileage Data",xlab="Number of Cylinders
         ylab="Miles Per Gallon",col=2:4,varwidth=TRUE,notch=TRUE)
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
 Demo of normal standardization
-```{r, message=FALSE, warning=FALSE}
+
+``` r
 X<-rnorm(10000,12,3) #sample X from normal distribution with mean 12 and S.D. 3
 #hist(X,col="grey",breaks=100) #histogram of X
 Z<-(X-12)/3 #standardization
@@ -151,3 +172,4 @@ XZ1<-melt(XZ) #rearrange data
 qplot(x=value,data=XZ1,shape=variable,colour=variable,geom="histogram",bins=100) #plot X and Z
 ```
 
+![](graphs_files/figure-markdown_github/unnamed-chunk-9-1.png)
