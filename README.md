@@ -1,7 +1,8 @@
 Graphs used in STAT 243
 ================
 Author: Ma
-August 8, 2017
+August 8, 2017  
+
 This shows basic commonds in R to make some statistical plots. 
 
 Here is the first figure, which shows us how to plot line and add legends:
